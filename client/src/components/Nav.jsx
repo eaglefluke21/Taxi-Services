@@ -10,9 +10,10 @@ const NavLinks = () => {
     return (
         <>
             <NavLink to="/" className="  sm:text-2xl font-quick  w-full text-center lg:w-auto hover:bg-gray-200 lg:hover:bg-transparent  font-semibold "> Home</NavLink>
-
             <NavLink to="/Services" className=" sm:text-2xl font-quick  w-full text-center lg:w-auto hover:bg-gray-200 lg:hover:bg-transparent font-semibold "> Services </NavLink>
+            <NavLink to="/Login" className=" sm:text-2xl font-quick  w-full text-center lg:w-auto hover:bg-gray-200 lg:hover:bg-transparent font-semibold "> Login </NavLink>
             <NavLink to="/Book" className="lg:ml-auto lg:pr-8"> <button  className="bg-black sm:py-2 sm:px-3 py-1 px-8 rounded-md text-xl font-quick font-semibold text-amber-300"> Book Now </button>  </NavLink>
+            
         </>
     )
 
