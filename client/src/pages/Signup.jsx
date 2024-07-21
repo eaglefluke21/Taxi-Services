@@ -3,9 +3,8 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import SignupImage from "../assets/signupimage.jpg";
 import { NavLink } from "react-router-dom";
-import CryptoJS from 'crypto-js';
-import cryptoEncrypt from "../components/cyptoEncrypt.jsx";
 import Popup from "../components/Popup.jsx";
+import axios from "axios";
 
 
 function Signup() {
@@ -36,33 +35,21 @@ function Signup() {
 
 
         try{
-            const cryptoKey = await cryptoEncrypt();
 
-            const backendurl = 'http://localhost:3000';
-            const url = `${backendurl}/users/register`;
+           const response = await axios.post('http://localhost:8000/api/userauth.php',{
+            action:'signup',
+            ...Formdata
+           });
+           console.log(response.data);
 
-            const encryptedPassword = CryptoJS.AES.encrypt(Formdata.password,cryptoKey).toString();
-
-            const responsestore = await fetch(url,{
-                method:'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    
-                },
-                body: JSON.stringify({...Formdata,password: encryptedPassword}),
-            });
-
-            const responsejson = await responsestore.json();
-            console.log(responsejson);
-
-            if(responsestore.status === 201) {
+            if(response.status === 201) {
                 setPopupVisible(true);                
             } else {
-                console.error('User creation failed:', error);
+                console.error('User creation failed:', response.data.message);
             }
 
         } catch(error){
-
+            alert('error creating user');
             console.log("Error occured while creating User:", error);
         }
 

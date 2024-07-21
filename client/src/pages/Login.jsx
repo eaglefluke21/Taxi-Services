@@ -2,12 +2,9 @@ import React ,{ useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import LoginImage from "../assets/loginimage.jpg";
-import Google from "../assets/google.svg";
-import Github from "../assets/github.svg";
 import { NavLink } from "react-router-dom";
-import CryptoJS from "crypto-js";
-import cryptoEncrypt from "../components/cyptoEncrypt";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 
 
@@ -41,41 +38,21 @@ function Login() {
 
 
         try{
-            const cryptoKey = await cryptoEncrypt();
+            
 
-            const backendurl = 'http://localhost:3000';
-            const url = `${backendurl}/users/login`;
-
-            const encryptedPassword = CryptoJS.AES.encrypt(Formdata.password,cryptoKey).toString();
-
-            const responsestore = await fetch(url,{
-                method:'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    
-                },
-                body: JSON.stringify({...Formdata,password: encryptedPassword}),
+            const response = await axios.post('http://localhost:8000/api/userauth.php', {
+                action: 'login',
+                ...Formdata
             });
+            console.log(response.data);
+            if (response.status === 200) {
 
-            const responsejson = await responsestore.json();
-            console.log("checking response",responsejson);
-
-            if(responsestore.status === 201) {
-
-                const token = responsejson.jwt;
-                sessionStorage.setItem('jwToken',token);
-                
-                console.log("navigating to home page");
-                navigate('/home');
-                           
+                navigate('/');
             } else {
-                console.error('User Login failed', error);
+                console.error('Login failed:', response.data.message);
             }
-
-           
-
-        } catch(error) {
-            console.log("error occured while Logging In:",error)
+        } catch (error) {
+            console.log("Error occurred while logging in:", error);
         }
     }
 
@@ -108,16 +85,6 @@ function Login() {
             <p className="font-quick font-semibold  mx-auto mt-2 "> Don't Have an Account. <NavLink to="/Signup"> <span className="font-quick font-bold hover:underline cursor-pointer">Create a New Account.</span></NavLink></p>
             
 
-            <div className="flex items-center justify-center w-full my-4">
-        <hr className="border-t-2 border-black w-1/4 mr-4"/>
-        <p className="text-black  font-anta text-md">Or Continue with</p>
-        <hr className="border-t-2 border-black w-1/4 ml-4"/>
-      </div>
-
-        <div className="flex flex-row justify-center gap-8 ">
-      <NavLink to="/google" className="w-1/2 bg-white rounded-md border-2  border-black font-quick font-semibold  text-black flex flex-row justify-center items-center gap-2"> <span> <img src={Google} className="h-10 w-10"/></span> Google </NavLink>
-      <button className="w-1/2 bg-white rounded-md border-2  border-black font-quick font-semibold  text-black flex flex-row justify-center items-center gap-2"> <span> <img src={Github} className="h-8 w-8" /></span>Github</button>
-      </div>
 
             </form>  
 
