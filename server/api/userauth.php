@@ -44,50 +44,7 @@ switch($requestMethod) {
             
 }
 
-function loginUser($db,$data){
-    $email = $data['email'] ?? '';
-    $password = $data['password'] ?? '';
-
-    if (empty($email) || empty($password)) {
-        http_response_code(400);
-        echo json_encode(array("message" => "Please fill all the required fields."));
-        return;
-    }
-
-    $query = "SELECT id, username, password, role FROM users WHERE email = ?";
-    $stmt = $db->prepare($query);
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $stmt->store_result();
-
-    if ($stmt->num_rows > 0) {
-        $stmt->bind_result($id, $username, $hashed_password, $role);
-        $stmt->fetch();
-
-        if (password_verify($password, $hashed_password)) {
-            http_response_code(200);
-            echo json_encode(array(
-                "message" => "Login successful",
-                "user" => array(
-                    "id" => $id,
-                    "username" => $username,
-                    "email" => $email,
-                    "role" => $role
-                )
-            ));
-        } else {
-            http_response_code(401);
-            echo json_encode(array("message" => "Invalid email or password"));
-        }
-    } else {
-        http_response_code(401);
-        echo json_encode(array("message" => "Invalid email or password"));
-    }
-
-    $stmt->close();
-    
-    
-};
+echo "dfjlka";
 
 
 function createUser($db,$data) {
@@ -96,28 +53,86 @@ function createUser($db,$data) {
     $password = $data['password'] ?? '';
     $role = $data['role'] ?? 'user';
 
+    // Validate input data
     if (empty($username) || empty($email) || empty($password)) {
         http_response_code(400);
-        echo json_encode(array("message" => "Please fill all the required fields."));
+        echo json_encode(array("message" => "Missing required fields"));
         return;
     }
 
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    
+   
 
-    $query = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
+    // Check if email already exists
+    $query = "SELECT id FROM users WHERE email = :email";
     $stmt = $db->prepare($query);
-    $stmt->bind_param("ssss", $username, $email, $hashed_password, $role);
+    $stmt->bindParam(':email', $email);
+    $stmt->execute();
 
-    if ($stmt->execute()) {
-        http_response_code(201);
-        echo json_encode(array("message" => "User created successfully."));
-    } else {
-        http_response_code(500);
-        echo json_encode(array("message" => "User creation failed: " . $stmt->error));
+    if ($stmt->rowCount() > 0) {
+        http_response_code(400);
+        echo json_encode(array("message" => "Email already exists"));
+        return;
     }
 
-    $stmt->close();
+     // Hash the password
+     $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+
+     // Insert the new user
+     $query = "INSERT INTO users (username, email, password, role) VALUES (:username, :email, :password, :role)";
+     $stmt = $db->prepare($query);
+     $stmt->bindParam(':username', $username);
+     $stmt->bindParam(':email', $email);
+     $stmt->bindParam(':password', $hashed_password);
+     $stmt->bindParam(':role', $role);
+ 
+     if ($stmt->execute()) {
+         http_response_code(201);
+         echo json_encode(array("message" => "User created successfully"));
+     } else {
+         http_response_code(500);
+         echo json_encode(array("message" => "Failed to create user"));
+     }
+ 
 }
+
+
+function loginUser($db,$data){
+    $email = $data['email'] ?? '';
+    $password = $data['password'] ?? '';
+
+    // Validate input data
+    if (empty($email) || empty($password)) {
+        http_response_code(400);
+        echo json_encode(array("message" => "Missing required fields"));
+        return;
+    }
+
+       // Fetch the user by email
+       $query = "SELECT id, password FROM users WHERE email = :email";
+       $stmt = $db->prepare($query);
+       $stmt->bindParam(':email', $email);
+       $stmt->execute();
+   
+       if ($stmt->rowCount() === 0) {
+           http_response_code(401);
+           echo json_encode(array("message" => "Invalid email or password"));
+           return;
+       }
+
+       $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    $stored_password = $user['password'];
+
+    // Verify the password
+    if (password_verify($password, $stored_password)) {
+        http_response_code(200);
+        echo json_encode(array("message" => "Login successful"));
+    } else {
+        http_response_code(401);
+        echo json_encode(array("message" => "Invalid email or password"));
+    }
+    
+};
 
 
 
