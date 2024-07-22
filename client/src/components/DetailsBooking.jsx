@@ -29,7 +29,7 @@ const DetailsBooking = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         
-        axios.post('http://localhost:8000/api/user.php', formData)
+        axios.post('http://localhost:8000/api/customerbooking.php', formData)
             .then(response => {
                 setUsers([...users, response.data]);
                 setFormData({ name: '', pickup: '', dropoff: '', car: '', passengers: '', description: '' }); 

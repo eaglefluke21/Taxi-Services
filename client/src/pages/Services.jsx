@@ -13,7 +13,7 @@ const Services = () => {
     const [users, setUsers] = useState([]);
 
     const fetchuser = () => {
-        axios.get('http://localhost:8000/api/user.php')
+        axios.get('http://localhost:8000/api/customerbooking.php')
             .then(response => {
                 setUsers(response.data);
             })
