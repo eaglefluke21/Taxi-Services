@@ -44,6 +44,7 @@ function Login() {
                 action: 'login',
                 ...Formdata
             });
+
           
             if (response.status === 200) {
 
@@ -63,6 +64,7 @@ function Login() {
             }
         } catch (error) {
             alert('wrong email or password');
+
             console.log("Error occurred while logging in:", error);
         }
     }

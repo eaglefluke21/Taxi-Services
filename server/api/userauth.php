@@ -1,11 +1,14 @@
 <?php
 include_once '../config/database.php';
+
 require '../vendor/autoload.php';
 
 use \Firebase\JWT\JWT;
 use Dotenv\Dotenv;
 
 header("Access-Control-Allow-Origin: http://localhost:5173");
+
+
 
 
 header("Content-Type: application/json; charset=UTF-8");
@@ -20,8 +23,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
+
 $dotenv = Dotenv::createImmutable(__DIR__.'/../');
 $dotenv->load();
+
 
 
 $database = new Database();
@@ -53,7 +58,6 @@ switch($requestMethod) {
         break;
             
 }
-
 
 
 
@@ -119,7 +123,9 @@ function loginUser($db,$data){
     }
 
        // Fetch the user by email
+
        $query = "SELECT id,username, password FROM users WHERE email = :email";
+
        $stmt = $db->prepare($query);
        $stmt->bindParam(':email', $email);
        $stmt->execute();
@@ -132,6 +138,7 @@ function loginUser($db,$data){
 
        $user = $stmt->fetch(PDO::FETCH_ASSOC);
     $stored_password = $user['password'];
+
 
    
     if (password_verify($password, $stored_password)) {
@@ -149,6 +156,7 @@ function loginUser($db,$data){
        
         http_response_code(200);
         echo json_encode(array("message" => "Login successful", "token" => $jwt));
+
     } else {
         http_response_code(401);
         echo json_encode(array("message" => "Invalid email or password"));
