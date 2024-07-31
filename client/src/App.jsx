@@ -1,9 +1,16 @@
+import { BrowserRouter as  Router, Routes, Route} from "react-router-dom";
 import Home from "./pages/Home";
 import Book from "./pages/Book";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup"
+import DriverSignup from "./pages/DriverSignup";
 import Services from "./pages/Services";
-import { BrowserRouter as  Router, Routes, Route} from "react-router-dom";
+import NotAuthorized from "./utils/NotAuthorized";
+import userRole from "./utils/userRole";
+
+
+const RoleBase = userRole(Book, [ 'user']);
+
 
 const App = () => {
 
@@ -16,7 +23,10 @@ const App = () => {
 <Route path="/Services" element={<Services/>}/>
 <Route path="/Login" element={<Login/>}/>
 <Route path="/Signup" element={<Signup/>}/>
-<Route path="/Book" element={<Book/>}/>
+<Route path="/DriverSignup" element={<DriverSignup/>}/>
+<Route path="/Book" element={<RoleBase/>}/>
+<Route path="/noAuth" element={<NotAuthorized />} />
+
 
   </Routes>
 </Router>

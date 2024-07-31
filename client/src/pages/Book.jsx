@@ -12,13 +12,6 @@ const Book = () => {
     
         <div className=" flex flex-col items-center flex-grow justify-center  rounded-lg bg-white lg:pb-0">
     
-            <h1 className=" text-xl text-center font-anta text-black pt-4 lg:hidden ">
-    
-                Book Your Cab Now!!
-
-               
-    
-            </h1>
     
             <Booking />
     

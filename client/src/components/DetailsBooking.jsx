@@ -46,7 +46,7 @@ const DetailsBooking = () => {
 
         <div>
 
-        <section className=" rounded-md bg-amber-300 ">
+        <section className=" rounded-md bg-gradient-to-r from-yellow-300 to-yellow-400">
             <div className="py-8 px-4 mx-10 max-w-2xl ">
                 <h2 className="mb-4 text-xl font-bold text-gray-900 font-quick">Book your Cab</h2>
                 

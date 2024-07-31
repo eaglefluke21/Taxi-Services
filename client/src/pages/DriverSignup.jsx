@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import DriverSignupImage from "../assets/redcar.jpg"
 import SignupImage from "../assets/signupimage.jpg";
 import { NavLink } from "react-router-dom";
 import Popup from "../components/Popup.jsx";
 import axios from "axios";
 
 
-function Signup() {
+function DriverSignup() {
 
     const[isPopupVisible , setPopupVisible] = useState(false);
 
@@ -16,7 +17,7 @@ function Signup() {
         username:'',
         email:'',
         password:'',
-        role:'user',
+        role:'driver',
     })
 
     const handleChange = (e) => {
@@ -64,7 +65,7 @@ function Signup() {
 
         <Header/>
 
-        <div className="flex flex-col flex-grow lg:flex-row lg:justify-evenly bg-gradient-to-r from-purple-100 to-sky-200 py-16 rounded-md">
+        <div className="flex flex-col flex-grow lg:flex-row lg:justify-evenly bg-gradient-to-r from-yellow-100 to-rose-200 py-16 rounded-md">
 
 
 
@@ -87,7 +88,7 @@ function Signup() {
             <input id="password" type="password" value={Formdata.password} className="w-full border-gray-700  border rounded-md py-1 font-quick ps-4 font-semibold" onChange={handleChange}></input>
             </div>
 
-            <NavLink to='/DriverSignup'> <span className="font-quick font-bold  hover:underline cursor-pointer ml-auto mb-2"> Create A Driver Account ?</span> </NavLink>
+            <NavLink to='/Signup'> <span className="font-quick font-bold  hover:underline cursor-pointer ml-auto mb-2"> Create User Account ?</span> </NavLink>
            
             <button type="submit" className="w-full bg-black rounded-md py-1.5 font-quick font-semibold shadow-sm shadow-black text-white "> Sign Up</button>
 
@@ -96,7 +97,7 @@ function Signup() {
             </form>  
 
 
-            <img src={SignupImage} className="rounded-md shadow-md object-cover hidden lg:block"/>
+            <img src={DriverSignupImage} className="rounded-md shadow-md object-cover hidden lg:block"/>
 
 
 
@@ -118,4 +119,4 @@ function Signup() {
 
 };
 
-export default Signup;
+export default DriverSignup;

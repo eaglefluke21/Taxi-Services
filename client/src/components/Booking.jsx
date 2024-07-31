@@ -21,7 +21,7 @@ const Booking = () => {
 
                     <div className="lg:flex lg:flex-col lg:gap-20 lg:w-[32rem] lg:mb-20   "> 
 
-                        <h1 className=" text-3xl text-center font-anta text-black invisible lg:visible">
+                        <h1 className=" text-3xl text-center font-anta text-black hidden lg:block">
                        
                         <img src={taxiImage} />
 

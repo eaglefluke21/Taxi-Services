@@ -1,15 +1,46 @@
 import React from "react";
 
-const Popup = ({message,onClose}) => {
+
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+  } from "@/components/ui/alert-dialog"
+
+
+
+const Popup = ({isOpen ,message,onClose}) => {
 
     return(
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70">
-        <div className="bg-white p-20 rounded-md shadow-md">
-            <p className="text-lg font-comic font-semibold my-4">{message}</p>
-            <button onClick={onClose} className="px-6 py-2 bg-black text-white rounded-md shadow-md">Close</button>
-        </div>
-    </div>
+        
+    <AlertDialog open={isOpen}>
+    <AlertDialogContent>
+      <AlertDialogHeader>
+        <AlertDialogTitle className="font-quick">{message}</AlertDialogTitle>
+      </AlertDialogHeader>
+      <AlertDialogFooter>
+        
+        <AlertDialogAction onClick={onClose} >Close</AlertDialogAction>
+      </AlertDialogFooter>
+    </AlertDialogContent>
+  </AlertDialog>
+  
     );
+
+
+
+
+
+
+
+
+
 };
 
 export default Popup;

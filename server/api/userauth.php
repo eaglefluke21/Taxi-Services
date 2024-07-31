@@ -124,7 +124,7 @@ function loginUser($db,$data){
 
        // Fetch the user by email
 
-       $query = "SELECT id,username, password FROM users WHERE email = :email";
+       $query = "SELECT id,username,  password ,role  FROM users WHERE email = :email";
 
        $stmt = $db->prepare($query);
        $stmt->bindParam(':email', $email);
@@ -148,7 +148,8 @@ function loginUser($db,$data){
             'iss' => 'your_domain.com', 
             'iat' => time(), 
             'exp' => time() + 3600, 
-            'sub' => $user['id'] 
+            'id' => $user['id'] ,
+            'role' => $user['role']
         );
 
         $jwt = JWT::encode($payload, $key,'HS256');

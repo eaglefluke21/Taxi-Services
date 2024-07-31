@@ -75,7 +75,7 @@ function Login() {
         <div className="flex flex-col min-h-screen ">
         <Header/>
 
-        <div className="flex flex-col flex-grow lg:flex-row lg:justify-evenly bg-blue-200 lg:bg-stone-100 py-16 rounded-md">
+        <div className="flex flex-col flex-grow lg:flex-row lg:justify-evenly bg-gradient-to-r from-green-100 to-stone-200 py-16 rounded-md">
 
             <form className="flex flex-col justify-center px-6 sm:px-40 lg:px-20 lg:w-[40rem]" onSubmit={handleSubmit}>
 
@@ -91,7 +91,6 @@ function Login() {
             <input id="password" type="password" value={Formdata.password} className="w-full border-gray-700  border rounded-md py-1 font-quick ps-4 font-semibold" onChange={handleChange}></input>
             </div>
 
-            <NavLink to="/forgot-password" className="font-quick font-bold gap-0 hover:underline cursor-pointer ml-auto mb-2"> Forgot Password ?</NavLink>
 
             <button className="w-full bg-black rounded-md py-1.5 font-quick font-semibold shadow-sm shadow-black text-white "> Log In</button>
 
@@ -101,7 +100,7 @@ function Login() {
 
             </form>  
 
-            <img src={LoginImage} className="rounded-md shadow-md object-cover invisible lg:visible"/>
+            <img src={LoginImage} className="rounded-md shadow-md object-cover hidden lg:block"/>
 
         </div>
 
