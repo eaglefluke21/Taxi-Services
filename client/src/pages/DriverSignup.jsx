@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import DriverSignupImage from "../assets/redcar.jpg"
-import SignupImage from "../assets/signupimage.jpg";
 import { NavLink } from "react-router-dom";
 import Popup from "../components/Popup.jsx";
 import axios from "axios";

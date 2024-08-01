@@ -25,11 +25,16 @@ const DetailsBooking = () => {
         });
     };
 
-   
+    const token = sessionStorage.getItem('jwToken');
+
     const handleSubmit = (e) => {
         e.preventDefault();
         
-        axios.post('http://localhost:8000/api/customerbooking.php', formData)
+        axios.post('http://localhost:8000/api/customerbooking.php', formData, {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    })
             .then(response => {
                 setUsers([...users, response.data]);
                 setFormData({ name: '', pickup: '', dropoff: '', car: '', passengers: '', description: '' }); 

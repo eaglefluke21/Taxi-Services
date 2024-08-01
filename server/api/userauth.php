@@ -101,8 +101,29 @@ function createUser($db,$data) {
      $stmt->bindParam(':role', $role);
  
      if ($stmt->execute()) {
-         http_response_code(201);
-         echo json_encode(array("message" => "User created successfully"));
+
+        $user_id = $db->lastInsertId();
+
+
+        if ($role === 'driver') {
+            $driver_query = "INSERT INTO drivers (name, user_id, is_available) VALUES (:name, :user_id, TRUE)";
+            $driver_stmt = $db->prepare($driver_query);
+            $driver_stmt->bindParam(':name', $username);
+            $driver_stmt->bindParam(':user_id', $user_id);
+
+            if ($driver_stmt->execute()) {
+                http_response_code(201);
+                echo json_encode(array("message" => "User and driver created successfully"));
+            } else {
+                http_response_code(500);
+                echo json_encode(array("message" => "Failed to create driver"));
+            }
+        } else {
+            http_response_code(201);
+            echo json_encode(array("message" => "User created successfully"));
+        }
+
+
      } else {
          http_response_code(500);
          echo json_encode(array("message" => "Failed to create user"));
@@ -112,6 +133,7 @@ function createUser($db,$data) {
 
 
 function loginUser($db,$data){
+    
     $email = $data['email'] ?? '';
     $password = $data['password'] ?? '';
 

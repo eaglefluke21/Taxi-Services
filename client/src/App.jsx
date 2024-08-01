@@ -7,6 +7,7 @@ import DriverSignup from "./pages/DriverSignup";
 import Services from "./pages/Services";
 import NotAuthorized from "./utils/NotAuthorized";
 import userRole from "./utils/userRole";
+import Status from "./pages/Status";
 
 
 const RoleBase = userRole(Book, [ 'user']);
@@ -26,6 +27,7 @@ const App = () => {
 <Route path="/DriverSignup" element={<DriverSignup/>}/>
 <Route path="/Book" element={<RoleBase/>}/>
 <Route path="/noAuth" element={<NotAuthorized />} />
+<Route path="/status" element={<Status/>}/>
 
 
   </Routes>
