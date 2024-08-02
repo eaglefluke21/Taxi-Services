@@ -8,11 +8,12 @@ const Status = () => {
 
     const [isAvailable, setIsAvailable] = useState(true);
 
+
+    const token = sessionStorage.getItem('jwToken');
+
     useEffect(() => {
         const fetchDriverInfo = async () => {
-            try {
-                const token = sessionStorage.getItem('jwToken');
-                console.log(token);
+            try {        
                 const response = await axios.get('http://localhost:8000/api/driverstatus.php', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
@@ -26,6 +27,25 @@ const Status = () => {
 
         fetchDriverInfo();
     }, []);
+
+
+    // useEffect(() => {
+    //     const checkbookingstatus = async () => {
+    //         try {
+    
+    //             const response = await axios.get('http://localhost:8000/api/bookingstatus.php', {
+    //                 headers: { Authorization: `Bearer ${token}` }
+    //             });
+    //             setDriverInfo(response.data);
+    //             console.log("response data ", response.data);
+    //             setIsAvailable(response.data.is_available);
+    //         } catch (error) {
+    //             console.error('Error fetching driver info:', error);
+    //         }
+    //     };
+
+    //     checkbookingstatus();
+    // }, []);
 
     const handleAvailabilityChange = async () => {
 

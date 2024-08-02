@@ -44,35 +44,54 @@ switch($requestMethod) {
             
 }
 
-function getUsers($db){
-    $query = " SELECT id, name,pickup,dropoff,car,passengers,description FROM userbooking";
-    $stmt = $db->prepare($query);
-    $stmt->execute();
+function getUsers($db) {
+    $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+    error_log("Authorization Header: " . $authHeader);
 
-    $users = array();
+    $token = str_replace('Bearer ', '', $authHeader);
+    error_log("Extracted Token: " . $token);
 
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-
-        extract($row);
-
-        $user_item = array(
-
-            "id" => $id,
-            "name" => $name,
-            "pickup" => $pickup,
-            "dropoff" => $dropoff,
-            "car" => $car,
-            "passengers" => $passengers,
-            "description" => $description
-
-        );
-
-        array_push($users, $user_item);
+    if (!$token) {
+        http_response_code(401);
+        echo json_encode(array("message" => "No token provided"));
+        return;
     }
 
-    echo json_encode($users);
-};
+    try {
+        $key = $_ENV['jwt_token'];
+        $decoded = JWT::decode($token, new Key($key, 'HS256'));
+        $userId = $decoded->id;
 
+        $query = "SELECT id, name, pickup, dropoff, car, passengers, description ,status FROM userbooking WHERE user_id = :user_id";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(':user_id', $userId);
+        $stmt->execute();
+
+        $users = array();
+
+        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            extract($row);
+
+            $user_item = array(
+                "id" => $id,
+                "name" => $name,
+                "pickup" => $pickup,
+                "dropoff" => $dropoff,
+                "car" => $car,
+                "passengers" => $passengers,
+                "description" => $description,
+                "status" => $status
+            );
+
+            array_push($users, $user_item);
+        }
+
+        echo json_encode($users);
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(array("message" => "Invalid token", "error" => $e->getMessage()));
+    }
+}
 
 function createUser($db) {
     $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
@@ -104,6 +123,20 @@ function createUser($db) {
             !empty($data->passengers) &&
             !empty($data->description)
         ) {
+            // Validate and sanitize the input
+            $name = htmlspecialchars(strip_tags($data->name));
+            $pickup = htmlspecialchars(strip_tags($data->pickup));
+            $dropoff = htmlspecialchars(strip_tags($data->dropoff));
+            $car = htmlspecialchars(strip_tags($data->car));
+            $passengers = filter_var($data->passengers, FILTER_VALIDATE_INT);
+            $description = htmlspecialchars(strip_tags($data->description));
+
+            if ($passengers === false) {
+                http_response_code(400);
+                echo json_encode(array("message" => "Invalid number of passengers."));
+                return;
+            }
+
             // Check for available driver
             $query = "SELECT id FROM drivers WHERE is_available = 1 LIMIT 1";
             $stmt = $db->prepare($query);
@@ -114,16 +147,8 @@ function createUser($db) {
                 $driverId = $driver['id'];
 
                 // Create a new booking with status 'pending'
-                $query = "INSERT INTO userbooking (user_id, driver_id, name, pickup, dropoff, passengers, car, description, status) VALUES (:user_id, :driver_id, :name, :pickup, :dropoff, :car, :passengers, :description, 'pending')";
+                $query = "INSERT INTO userbooking (user_id, driver_id, name, pickup, dropoff, passengers, car, description, status) VALUES (:user_id, :driver_id, :name, :pickup, :dropoff, :passengers, :car, :description, 'pending')";
                 $stmt = $db->prepare($query);
-
-                // Store sanitized values in variables
-                $name = htmlspecialchars(strip_tags($data->name));
-                $pickup = htmlspecialchars(strip_tags($data->pickup));
-                $dropoff = htmlspecialchars(strip_tags($data->dropoff));
-                $car = htmlspecialchars(strip_tags($data->car));
-                $passengers = htmlspecialchars(strip_tags($data->passengers));
-                $description = htmlspecialchars(strip_tags($data->description));
 
                 // Bind parameters
                 $stmt->bindParam(":user_id", $userId);
@@ -131,8 +156,8 @@ function createUser($db) {
                 $stmt->bindParam(":name", $name);
                 $stmt->bindParam(":pickup", $pickup);
                 $stmt->bindParam(":dropoff", $dropoff);
-                $stmt->bindParam(":car", $car);
                 $stmt->bindParam(":passengers", $passengers);
+                $stmt->bindParam(":car", $car);
                 $stmt->bindParam(":description", $description);
 
                 if ($stmt->execute()) {
@@ -161,5 +186,4 @@ function createUser($db) {
         echo json_encode(array("message" => "Invalid token", "error" => $e->getMessage()));
     }
 }
-
 ?>

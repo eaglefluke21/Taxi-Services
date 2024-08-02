@@ -13,9 +13,15 @@ const Services = () => {
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [users, setUsers] = useState([]);
 
+    const token = sessionStorage.getItem('jwToken');
+
 
     const fetchuser = () => {
-        axios.get('http://localhost:8000/api/customerbooking.php')
+        axios.get('http://localhost:8000/api/customerbooking.php', {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        })
             .then(response => {
                 setUsers(response.data);
             })
@@ -97,6 +103,11 @@ const Services = () => {
                                     }
 
 
+                                </p>
+
+                                <p className="flex  mb-2 justify-between w-full whitespace-nowrap font-quick border-b border-stone-500">
+                                    <span className="font-medium">Status</span>
+                                    <span className="font-bold">{user.status}</span>
                                 </p>
 
 
