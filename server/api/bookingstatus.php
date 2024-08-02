@@ -49,12 +49,9 @@ switch($requestMethod) {
         break;
 }
 
-function checkstatus($db) {
+function checkStatus($db) {
     $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-    error_log("Authorization Header: " . $authHeader);
-
     $token = str_replace('Bearer ', '', $authHeader);
-    error_log("Extracted Token: " . $token);
 
     if (!$token) {
         http_response_code(401);
@@ -65,22 +62,43 @@ function checkstatus($db) {
     try {
         $key = $_ENV['jwt_token'];
         $decoded = JWT::decode($token, new Key($key, 'HS256'));
-        $driverId = $decoded->id;
+        $decodeddriverId = $decoded->id;
 
-        
+        // Verify driver ID
+        $query = "SELECT * FROM drivers WHERE user_id = :user_id";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(":user_id", $decodeddriverId);
+        $stmt->execute();
+        $driver = $stmt->fetch(PDO::FETCH_ASSOC);
 
+        if (!$driver) {
+            http_response_code(404);
+            echo json_encode(array("message" => "Driver not found"));
+            return;
+        }
+
+        // Fetch booking status for the driver
+        $query = "SELECT * FROM userbooking WHERE driver_id = :driver_id AND status = 'pending'";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(":driver_id", $driver['id']);
+        $stmt->execute();
+        $booking = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($booking) {
+            http_response_code(200);
+            echo json_encode($booking);
+        } else {
+            http_response_code(404);
+            echo json_encode(array("message" => "No pending bookings found"));
+        }
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(array("message" => "Invalid token", "error" => $e->getMessage()));
     }
 }
-
-function updatestatus($db) {
+function updateStatus($db) {
     $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
-    error_log("Authorization Header: " . $authHeader);
-
     $token = str_replace('Bearer ', '', $authHeader);
-    error_log("Extracted Token: " . $token);
 
     if (!$token) {
         http_response_code(401);
@@ -91,10 +109,49 @@ function updatestatus($db) {
     try {
         $key = $_ENV['jwt_token'];
         $decoded = JWT::decode($token, new Key($key, 'HS256'));
-        $driverId = $decoded->id;
+        $decodeddriverId = $decoded->id;
 
-        
+        $data = json_decode(file_get_contents("php://input"));
 
+        if (empty($data->status)) {
+            http_response_code(400);
+            echo json_encode(array("message" => "No status provided"));
+            return;
+        }
+
+        // Verify driver ID
+        $query = "SELECT * FROM drivers WHERE user_id = :user_id";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(":user_id", $decodeddriverId);
+        $stmt->execute();
+        $driver = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$driver) {
+            http_response_code(404);
+            echo json_encode(array("message" => "Driver not found"));
+            return;
+        }
+
+        // Update booking status
+        $query = "UPDATE userbooking SET status = :status WHERE driver_id = :driver_id AND status = 'pending'";
+        $stmt = $db->prepare($query);
+        $stmt->bindParam(":status", $data->status);
+        $stmt->bindParam(":driver_id", $driver['id']);
+        if ($stmt->execute()) {
+            // Fetch updated booking
+            $query = "SELECT * FROM userbooking WHERE driver_id = :driver_id AND status = :status";
+            $stmt = $db->prepare($query);
+            $stmt->bindParam(":driver_id", $driver['id']);
+            $stmt->bindParam(":status", $data->status);
+            $stmt->execute();
+            $updatedBooking = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            http_response_code(200);
+            echo json_encode($updatedBooking);
+        } else {
+            http_response_code(500);
+            echo json_encode(array("message" => "Failed to update booking status"));
+        }
     } catch (Exception $e) {
         http_response_code(500);
         echo json_encode(array("message" => "Invalid token", "error" => $e->getMessage()));

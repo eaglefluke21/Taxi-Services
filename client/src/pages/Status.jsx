@@ -2,24 +2,34 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Header from '../components/Header.jsx';
 import Footer from '../components/Footer.jsx';
+import { Button } from "@/components/ui/button"
+
 
 const Status = () => {
     const [driverInfo, setDriverInfo] = useState(null);
 
     const [isAvailable, setIsAvailable] = useState(true);
 
+    const [bookings, setBookings] = useState([]);
+
+    const [booking, setBooking] = useState(null);
+    const [status, setStatus] = useState('pending');
+
 
     const token = sessionStorage.getItem('jwToken');
 
     useEffect(() => {
         const fetchDriverInfo = async () => {
+            
             try {        
                 const response = await axios.get('http://localhost:8000/api/driverstatus.php', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                setDriverInfo(response.data);
                 console.log("response data ", response.data);
+                setDriverInfo(response.data);
                 setIsAvailable(response.data.is_available);
+                setBookings(response.data.bookings || []);
+
             } catch (error) {
                 console.error('Error fetching driver info:', error);
             }
@@ -29,23 +39,44 @@ const Status = () => {
     }, []);
 
 
-    // useEffect(() => {
-    //     const checkbookingstatus = async () => {
-    //         try {
+    useEffect(() => {
+        const fetchbookingstatus = async () => {
+            try {
     
-    //             const response = await axios.get('http://localhost:8000/api/bookingstatus.php', {
-    //                 headers: { Authorization: `Bearer ${token}` }
-    //             });
-    //             setDriverInfo(response.data);
-    //             console.log("response data ", response.data);
-    //             setIsAvailable(response.data.is_available);
-    //         } catch (error) {
-    //             console.error('Error fetching driver info:', error);
-    //         }
-    //     };
+                const response = await axios.get('http://localhost:8000/api/bookingstatus.php', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                console.log(response.data);
+                setBooking(response.data);
+                setStatus(response.data.status);
+            } catch (error) {
+                console.error('Error fetching driver info:', error);
+            }
+        };
 
-    //     checkbookingstatus();
-    // }, []);
+        fetchbookingstatus();
+    }, [token]);
+
+    const handleStatusChange = async (newStatus) => {
+        try {
+            const response = await axios.put('http://localhost:8000/api/bookingstatus.php', {
+                status: newStatus,
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            
+            // Assuming the backend responds with the updated booking data
+            setStatus(response.data.status);
+        } catch (error) {
+            console.error('Error updating booking status:', error);
+        }
+    };
+
+
+
+
+
+
 
     const handleAvailabilityChange = async () => {
 
@@ -86,6 +117,28 @@ const Status = () => {
                     <p>Loading...</p>
                 )}
             </div>
+
+
+
+            <div>
+            {booking ? (
+                <div>
+                    <h2>Booking Details</h2>
+                    <p>Name: {booking.name}</p>
+                    <p>Pickup: {booking.pickup}</p>
+                    <p>Dropoff: {booking.dropoff}</p>
+                    <p>Status: {status}</p>
+                    { status === 'pending' && (  
+                    <div>
+                    <Button className="mx-12" onClick={() => handleStatusChange('accepted')}>Accept</Button>
+                    <Button onClick={() => handleStatusChange('rejected')}>Reject</Button>
+                    </div>
+                    )}
+                </div>
+            ) : (
+                <p>No Pending Bookings Right Now ...</p>
+            )}
+        </div>
 
             <Footer />
         </div>
