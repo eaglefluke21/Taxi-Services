@@ -101,44 +101,53 @@ const Status = () => {
         <div className="flex flex-col min-h-screen">
             <Header />
 
-            <div className="flex flex-col items-center flex-grow justify-center rounded-lg bg-white lg:pb-0">
-                <h1 className="text-xl text-center font-anta text-black pt-4">Driver Status</h1>
+            <div className="flex flex-col gap-12  sm:flex-row lg:gap-24 items-center flex-grow justify-center rounded-lg bg-white lg:pb-0">
+                <div className="flex flex-col items-center justify-center">
+                <h1 className="text-xl  font-quick font-bold  lg:3xl ">Driver Status</h1>
                 {driverInfo ? (
 
                     
-                    <div>
-                        <p>Name: {driverInfo.name}</p>
+                    <div className="flex flex-col items-center justify-center " >
+                        <p className="font-quick">Name: <span className="font-semibold">{driverInfo.name}</span></p>
                         <p>Status: {isAvailable ? 'Available' : 'Not Available'}</p>
-                        <button onClick={handleAvailabilityChange} className="bg-black text-white rounded-md px-4 py-2 mt-4">
+                        <Button onClick={handleAvailabilityChange} className="bg-black w-64 mt-2">
                             {isAvailable ? 'Mark as Not Available' : 'Mark as Available'}
-                        </button>
+                        </Button>
                     </div>
                 ) : (
-                    <p>Loading...</p>
+                    <p className="font-quick font-bold text-md">Loading...</p>
                 )}
+
             </div>
+           
 
 
 
-            <div>
+            <div >
             {booking ? (
-                <div>
-                    <h2>Booking Details</h2>
-                    <p>Name: {booking.name}</p>
-                    <p>Pickup: {booking.pickup}</p>
-                    <p>Dropoff: {booking.dropoff}</p>
-                    <p>Status: {status}</p>
-                    { status === 'pending' && (  
+                <div className="flex flex-col items-center justify-center gap-4">
                     <div>
-                    <Button className="mx-12" onClick={() => handleStatusChange('accepted')}>Accept</Button>
-                    <Button onClick={() => handleStatusChange('rejected')}>Reject</Button>
+                    <h2 className="font-quick font-bold">Booking Details</h2>
+                    <p  className="font-quick">Name: <span className="font-semibold">{booking.name}</span> </p>
+                    <p  className="font-quick">Pickup:  <span className="font-semibold"> {booking.pickup}</span> </p>
+                    <p  className="font-quick">Dropoff: <span className="font-semibold"> {booking.dropoff}</span> </p>
+                    <p  className="font-quick">Status: <span className="font-semibold"> {status}</span> </p>
+                    </div>
+                    { status === 'pending' && (  
+                    <div className='flex flex-col w-64 gap-4'>
+                    <Button className="bg-black" onClick={() => handleStatusChange('accepted')}>Accept</Button>
+                    <Button className="bg-black" onClick={() => handleStatusChange('rejected')}>Reject</Button>
                     </div>
                     )}
                 </div>
             ) : (
-                <p>No Pending Bookings Right Now ...</p>
+                <p className="font-quick font-bold text-md sm:text-xl lg:text-3xl">No Pending Bookings Right Now ...</p>
             )}
         </div>
+
+
+        </div>
+
 
             <Footer />
         </div>

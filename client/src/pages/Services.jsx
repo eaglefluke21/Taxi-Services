@@ -10,7 +10,6 @@ const Services = () => {
 
 
     const [PopupVisibleId, setPopupVisibleId] = useState(null);
-    const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [users, setUsers] = useState([]);
 
     const token = sessionStorage.getItem('jwToken');
@@ -68,32 +67,32 @@ const Services = () => {
                             <li key={user.id} className=" bg-gradient-to-r from-gray-300 to-white  flex flex-col  p-4 rounded-md ">
 
                                 <p className="flex mb-2 justify-between w-full whitespace-nowrap font-quick border-b border-stone-500">
-                                    <span>Customer Name</span>
+                                    <span className="font-bold">Customer Name</span>
                                     <span className="font-bold">{user.name}</span>
                                 </p>
 
                                 <p className="flex  mb-2 justify-between w-full whitespace-normal font-quick border-b border-stone-500">
-                                    <span>Pickup Location</span>
+                                    <span className="font-bold">Pickup Location</span>
                                     <span className="font-bold">{user.pickup}</span>
                                 </p>
 
                                 <p className="flex  mb-2 justify-between w-full whitespace-normal font-quick border-b border-stone-500">
-                                    <span className="font-medium" >Dropoff Location</span>
+                                    <span className="font-bold" >Dropoff Location</span>
                                     <span className="font-bold">{user.dropoff}</span>
                                 </p>
 
                                 <p className="flex  mb-2 justify-between w-full whitespace-nowrap font-quick border-b border-stone-500">
-                                    <span>Car</span>
+                                    <span className="font-bold">Car</span>
                                     <span className="font-bold">{user.car}</span>
                                 </p>
 
                                 <p className="flex  mb-2 justify-between w-full whitespace-nowrap font-quick border-b border-stone-500">
-                                    <span className="font-medium">Passengers</span>
+                                    <span className="font-bold">Passengers</span>
                                     <span className="font-bold">{user.passengers}</span>
                                 </p>
 
                                 <p className="flex  mb-2 justify-between w-full whitespace-nowrap break-words font-quick border-b border-stone-500">
-                                    <span>Description</span>
+                                    <span className="font-bold">Description</span>
 
                                     <button onClick={() => openpopup(user.id)} > check </button>
 
@@ -106,7 +105,7 @@ const Services = () => {
                                 </p>
 
                                 <p className="flex  mb-2 justify-between w-full whitespace-nowrap font-quick border-b border-stone-500">
-                                    <span className="font-medium">Status</span>
+                                    <span className="font-bold">Status</span>
                                     <span className="font-bold">{user.status}</span>
                                 </p>
 

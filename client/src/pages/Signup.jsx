@@ -3,8 +3,8 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import SignupImage from "../assets/signupimage.jpg";
 import { NavLink } from "react-router-dom";
-import Popup from "../components/Popup.jsx";
 import axios from "axios";
+import Popup from "../components/Popup";
 
 
 function Signup() {
@@ -43,6 +43,7 @@ function Signup() {
            console.log(response.data);
 
             if(response.status === 201) {
+                resetForm();
                 setPopupVisible(true);                
             } else {
                 console.error('User creation failed:', response.data.message);
@@ -54,6 +55,16 @@ function Signup() {
         }
 
     };
+
+    const resetForm = () => {
+        setFormdata({
+            username:'',
+            email:'',
+            password:'',
+            role:'',
+
+        })
+    }
     
     const closePopup = () => {
         setPopupVisible(false);
@@ -104,8 +115,8 @@ function Signup() {
 
         <div>
             {
-                isPopupVisible && 
-                    <Popup message="User Created Successfully" onClose={closePopup} />
+                isPopupVisible === true && 
+                    <Popup isOpen={true} message="User Account Created Successfully" onClose={closePopup} />
                 
             }
 

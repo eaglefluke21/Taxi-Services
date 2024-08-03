@@ -3,8 +3,9 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import DriverSignupImage from "../assets/redcar.jpg"
 import { NavLink } from "react-router-dom";
-import Popup from "../components/Popup.jsx";
 import axios from "axios";
+import Popup from "../components/Popup";
+
 
 
 function DriverSignup() {
@@ -43,6 +44,7 @@ function DriverSignup() {
            console.log(response.data);
 
             if(response.status === 201) {
+                resetForm();
                 setPopupVisible(true);                
             } else {
                 console.error('User creation failed:', response.data.message);
@@ -54,6 +56,17 @@ function DriverSignup() {
         }
 
     };
+
+
+    const resetForm = () => {
+        setFormdata({
+            username:'',
+            email:'',
+            password:'',
+            role:'',
+
+        })
+    }
     
     const closePopup = () => {
         setPopupVisible(false);
@@ -104,8 +117,8 @@ function DriverSignup() {
 
         <div>
             {
-                isPopupVisible && 
-                    <Popup message="User Created Successfully" onClose={closePopup} />
+                isPopupVisible === true && 
+                <Popup isOpen={true} message="Driver Account Created Successfully" onClose={closePopup} />
                 
             }
 

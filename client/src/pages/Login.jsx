@@ -5,11 +5,25 @@ import LoginImage from "../assets/loginimage.jpg";
 import { NavLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Popup from "../components/Popup";
 
 
 
 function Login() {
 
+    const [PopupVisible, setPopupVisible] = useState(false);
+
+
+    const openpopup = (userId) => {
+
+        setPopupVisible(userId);
+       
+    };
+
+    
+    const closePopup = () => {
+        setPopupVisible(false);
+    };
 
 
     const navigate = useNavigate();
@@ -59,11 +73,12 @@ function Login() {
 
                 navigate('/');
             } else {
-                alert('wrong email or password');
+
+                setPopupVisible(true);  
                 console.error('Login failed:', response.data.message);
             }
         } catch (error) {
-            alert('wrong email or password');
+            setPopupVisible(true);  
 
             console.log("Error occurred while logging in:", error);
         }
@@ -104,6 +119,14 @@ function Login() {
 
         </div>
 
+        <div>
+            {
+                PopupVisible === true && 
+                    <Popup isOpen={true} message="Incorrect Login Credentials" onClose={closePopup} />
+                
+            }
+
+        </div>
 
 
         <Footer/>
