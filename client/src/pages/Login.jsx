@@ -13,13 +13,6 @@ function Login() {
 
     const [PopupVisible, setPopupVisible] = useState(false);
 
-
-    const openpopup = (userId) => {
-
-        setPopupVisible(userId);
-       
-    };
-
     
     const closePopup = () => {
         setPopupVisible(false);

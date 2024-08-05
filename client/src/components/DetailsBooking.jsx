@@ -1,9 +1,22 @@
-import React, { useState, useEffect} from "react";
+import React, { useState} from "react";
 import axios from 'axios';
+import Popup from "../components/Popup";
+
 
 
 
 const DetailsBooking = () => {
+
+
+    const [PopupVisible ,setPopupVisible] = useState(false);
+    const [BookingPopupVisisble, setBookingPopupVisible] = useState(false);
+
+
+    const closePopup = () => {
+        setPopupVisible(false);
+        setBookingPopupVisible(false);
+    }
+
 
     const [users, setUsers] = useState([]);
     const [formData, setFormData] = useState({
@@ -36,12 +49,24 @@ const DetailsBooking = () => {
         }
     })
             .then(response => {
+
+                console.log(response.status);
+                if(response.status === 201){
+                    setBookingPopupVisible(true);
+                }
+
                 setUsers([...users, response.data]);
                 setFormData({ name: '', pickup: '', dropoff: '', car: '', passengers: '', description: '' }); 
                 console.log('Data Inserted Successfully');
                 fetchuser();
+
             })
             .catch(error => {
+                console.log("checking RESPONSE STATUS ",error.response.status);
+                if(error.response.status === 404){
+                
+                    setPopupVisible(true);
+                  }    
                 console.error('There was an error creating the user!', error);
             });
     };
@@ -105,6 +130,18 @@ const DetailsBooking = () => {
                 </form>
             </div>
         </section>
+
+
+        {
+        PopupVisible === true &&
+        <Popup isOpen={true} message="No drivers available" onClose={closePopup}/>
+        }
+
+        {
+        BookingPopupVisisble === true &&
+        <Popup isOpen={true} message="Booking created . Pending... wait for status" onClose={closePopup}/>
+        }
+
 
 
         </div>
