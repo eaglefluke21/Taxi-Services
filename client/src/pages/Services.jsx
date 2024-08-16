@@ -3,7 +3,7 @@ import Footer from "../components/Footer"
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Popup from "../components/Popup";
-
+import Chat from "../components/Chat";
 
 
 const Services = () => {
@@ -53,9 +53,9 @@ const Services = () => {
 
             <Header />
 
+<Chat/>
 
-
-            <section className="bg-gradient-to-b from-white to-sky-100 rounded-md flex flex-col flex-grow justify-center items-center">
+            <section className="bg-gradient-to-b from-white to-orange-100 rounded-md flex flex-col flex-grow justify-center items-center">
 
                 <div className="py-8 px-4 mx-4  w-full">
 
@@ -64,7 +64,7 @@ const Services = () => {
                     <ul className="grid grid-cols-1 sm:grid-cols-2  gap-4 px-px w-full">
 
                         {users.map(user => (
-                            <li key={user.id} className=" bg-gradient-to-r from-gray-300 to-white  flex flex-col  p-4 rounded-md ">
+                            <li key={user.id} className=" bg-gradient-to-r from-orange-300 to-orange-200  flex flex-col  p-4 rounded-md ">
 
                                 <p className="flex mb-2 justify-between w-full whitespace-nowrap font-quick border-b border-stone-500">
                                     <span className="font-bold">Customer Name</span>
