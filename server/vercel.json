@@ -1,19 +1,19 @@
 {
     "functions": {
-      "api/*.php": {
+      "server/api/*.php": {
         "runtime": "vercel-php@0.7.1"
       },
     
-      "api/index.php": {
+      "server/api/index.php": {
         "runtime": "vercel-php@0.7.1"
       },
-      "api/bookingstatus.php": {
+      "server/api/bookingstatus.php": {
         "runtime": "vercel-php@0.7.1"
       },
-      "api/customerbooking.php": {
+      "server/api/customerbooking.php": {
         "runtime": "vercel-php@0.7.1"
       },
-      "api/driverstatus.php": {
+      "server/api/driverstatus.php": {
         "runtime": "vercel-php@0.7.1"
       }
     }
