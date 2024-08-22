@@ -1,14 +1,10 @@
 {
-    "functions": {
-      "api/*.php": {
-        "runtime": "vercel-php@0.7.1"
-      }
-    },
-   "routes": [
-    { "src": "/api/index", "dest": "/api/index.php" },
-    { "src": "/api/users", "dest": "/api/bookingstatus.php" },
-    { "src": "/api/books", "dest": "/api/customerbooking.php" },
-    { "src": "/api/books", "dest": "/api/driverstatus.php" },
-    { "src": "/api/books", "dest": "/api/userauth.php" }
+  "functions": {
+    "api/*.php": {
+      "runtime": "vercel-php@0.7.1"
+    }
+  },
+  "routes": [
+    { "src": "/(.*)",  "dest": "/api/index.php" }
   ]
-  }
+}
