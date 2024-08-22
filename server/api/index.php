@@ -1,7 +1,6 @@
 <?php
-include_once '../config/database.php';
+include_once(__DIR__ . '/../config/database.php');
 echo "Backend is Running.";
-
 $databaseObj = new Database();
 $db = $databaseObj->getConnection();
 
