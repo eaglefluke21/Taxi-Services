@@ -16,7 +16,7 @@ const Services = () => {
 
 
     const fetchuser = () => {
-        axios.get('http://localhost:8000/api/customerbooking.php', {
+        axios.get('https://taxi-services-backend.vercel.app/api/customerbooking.php', {
             headers: {
                 Authorization: `Bearer ${token}`
             }

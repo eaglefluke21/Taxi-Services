@@ -7,7 +7,7 @@ use \Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use Dotenv\Dotenv;
 
-header("Access-Control-Allow-Origin: http://localhost:5173");
+header("Access-Control-Allow-Origin: https://taxi-services-kappa.vercel.app");
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods:POST ,GET ,OPTIONS");
 header("Acces-Control-Max-Age: 3600");
