@@ -9,11 +9,18 @@ function getDbConnection() {
 
     $connection_string = "host=" . $host . " port=" . $port . " dbname=" . $db . " user=" . $user . " password=" . $password . " options='endpoint=" . $endpoint . "' sslmode=require";
 
+    error_log("Attempting to connect to the database at $host:$port with user $user.");
+
     $dbconn = pg_connect($connection_string);
 
     if (!$dbconn) {
+        error_log("Connection failed: " . pg_last_error());
         die("Connection failed: " . pg_last_error());
-    }
+    } 
+
+        error_log("Connection to the database was successful.");
+
+
     return $dbconn;
 }
 

@@ -22,7 +22,7 @@ const Status = () => {
         const fetchDriverInfo = async () => {
             
             try {        
-                const response = await axios.get('https://taxi-services-backend.vercel.app/api/driverstatus.php', {
+                const response = await axios.get('https://taxi-services-backend.vercel.app/api/driverstatus', {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 console.log("response data ", response.data);

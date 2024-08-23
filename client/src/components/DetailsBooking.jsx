@@ -43,7 +43,7 @@ const DetailsBooking = () => {
     const handleSubmit = (e) => {
         e.preventDefault();
         
-        axios.post('http://localhost:8000/api/customerbooking.php', formData, {
+        axios.post('http://localhost:8000/api/customerbooking', formData, {
         headers: {
             Authorization: `Bearer ${token}`
         }

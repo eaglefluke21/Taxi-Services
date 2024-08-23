@@ -37,7 +37,7 @@ function DriverSignup() {
 
         try{
 
-           const response = await axios.post('https://taxi-services-backend.vercel.app/api/userauth.php',{
+           const response = await axios.post('https://taxi-services-backend.vercel.app/api/userauth',{
             action:'signup',
             ...Formdata
            });
