@@ -13,5 +13,13 @@
       "src": "/api/(.*)",
       "dest": "/api/$1.php"
     }
-  ]
+  ],
+  "env": {
+    "PG_HOST": "ep-frosty-morning-a1kjb83k-pooler.ap-southeast-1.aws.neon.tech",
+    "PG_PORT": "5432",
+    "PG_DB": "verceldb",
+    "PG_USER": "default",
+    "PG_PASSWORD": "VK5ERlqhY8Fg",
+    "PG_ENDPOINT": "ep-frosty-morning-a1kjb83k-pooler"
+  }
 }

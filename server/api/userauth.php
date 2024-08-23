@@ -1,7 +1,7 @@
 <?php
-include_once '../config/database.php';
+include_once __DIR__ . '/index.php';
 
-require '../vendor/autoload.php';
+require_once __DIR__ .'../vendor/autoload.php';
 
 use \Firebase\JWT\JWT;
 use Dotenv\Dotenv;
@@ -28,9 +28,7 @@ $dotenv = Dotenv::createImmutable(__DIR__.'/../');
 $dotenv->load();
 
 
-
-$database = new Database();
-$db = $database->getConnection();
+$db = getDbConnection();
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 
