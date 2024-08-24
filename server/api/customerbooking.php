@@ -5,7 +5,6 @@ require_once __DIR__ .'/../vendor/autoload.php';
 
 use \Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use Dotenv\Dotenv;
 
 header("Access-Control-Allow-Origin: https://taxi-services-kappa.vercel.app");
 header("Content-Type: application/json; charset=UTF-8");

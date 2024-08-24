@@ -20,12 +20,7 @@ function getDbConnection() {
 
         error_log("Connection to the database was successful.");
  
-        echo "Connected successfully";
-
     return $dbconn;
 }
-
-getDbConnection();
-
 
 ?>

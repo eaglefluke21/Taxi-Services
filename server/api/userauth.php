@@ -4,7 +4,6 @@ include_once __DIR__ . '/index.php';
 require_once __DIR__ .'/../vendor/autoload.php';
 
 use \Firebase\JWT\JWT;
-use Dotenv\Dotenv;
 
 header("Access-Control-Allow-Origin: https://taxi-services-kappa.vercel.app");
 
