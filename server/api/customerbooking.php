@@ -23,11 +23,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit();
 }
 
-$dotenv = Dotenv::createImmutable(__DIR__.'/../');
-$dotenv->load();
 
-$database = new Database();
-$db = $database->getConnection();
+
+$db = getDbConnection();
+
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 

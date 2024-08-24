@@ -25,6 +25,7 @@ function getDbConnection() {
     return $dbconn;
 }
 
-echo "is it invoked ?";
+getDbConnection();
+
 
 ?>

@@ -25,13 +25,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 
-$dotenv = Dotenv::createImmutable(__DIR__.'/../');
-$dotenv->load();
 
+$db = getDbConnection();
 
-
-$database = new Database();
-$db = $database->getConnection();
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 
