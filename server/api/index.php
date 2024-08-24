@@ -1,26 +1,23 @@
 <?php
 function getDbConnection() {
-    $host = $_ENV['PG_HOST'];
-    $port = $_ENV['PG_PORT'];
-    $db = $_ENV['PG_DB'];
-    $user = $_ENV['PG_USER'];
-    $password = $_ENV['PG_PASSWORD'];
-    $endpoint = $_ENV['PG_ENDPOINT'];
+    // Get the POSTGRES_URL environment variable
+    $connection_string = $_ENV['POSTGRES_URL'];
 
-    $connection_string = "host=" . $host . " port=" . $port . " dbname=" . $db . " user=" . $user . " password=" . $password . " options='endpoint=" . $endpoint . "' sslmode=require";
+    // Log the connection attempt
+    error_log("Attempting to connect to the database using POSTGRES_URL.");
 
-    error_log("Attempting to connect to the database at $host:$port with user $user.");
-
+    // Attempt to connect to the database using the provided connection string
     $dbconn = pg_connect($connection_string);
 
+    // Check if the connection was successful
     if (!$dbconn) {
         error_log("Connection failed: " . pg_last_error());
         die("Connection failed: " . pg_last_error());
     } 
 
-        error_log("Connection to the database was successful.");
- 
+    // Log successful connection
+    error_log("Connection to the database was successful.");
+
     return $dbconn;
 }
-
 ?>
