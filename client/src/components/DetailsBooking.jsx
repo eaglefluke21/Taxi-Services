@@ -3,8 +3,6 @@ import axios from 'axios';
 import Popup from "../components/Popup";
 
 
-
-
 const DetailsBooking = () => {
 
 
@@ -42,8 +40,11 @@ const DetailsBooking = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        const apiUrl = import.meta.env.VITE_API_URL;
+        console.log("current env", apiUrl);
         
-        axios.post('http://localhost:8000/api/customerbooking', formData, {
+        axios.post(`${apiUrl}/customerbooking`, formData, {
         headers: {
             Authorization: `Bearer ${token}`
         }

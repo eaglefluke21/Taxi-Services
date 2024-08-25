@@ -16,7 +16,10 @@ const Services = () => {
 
 
     const fetchuser = () => {
-        axios.get('https://taxi-services-backend.vercel.app/api/customerbooking', {
+        const apiUrl = import.meta.env.VITE_API_URL;
+        console.log("current env", apiUrl);
+
+        axios.get(`${apiUrl}/customerbooking`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }

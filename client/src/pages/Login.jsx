@@ -38,16 +38,13 @@ function Login() {
 
         e.preventDefault();
 
-        
-
-      
-
-
 
         try{
             
+            const apiUrl = import.meta.env.VITE_API_URL;
+            console.log("current env", apiUrl);
 
-            const response = await axios.post('https://taxi-services-backend.vercel.app/api/userauth', {
+            const response = await axios.post(`${apiUrl}/userauth`, {
                 action: 'login',
                 ...Formdata
             });

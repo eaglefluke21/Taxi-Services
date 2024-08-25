@@ -83,8 +83,11 @@ const Status = () => {
         const newAvailability = !isAvailable;
 
         try {
+            const apiUrl = import.meta.env.VITE_API_URL;
+            console.log("current env", apiUrl);
+
             const token = sessionStorage.getItem('jwToken');
-            await axios.put('http://localhost:8000/api/driverstatus.php', {
+            await axios.put(`${apiUrl}/driverstatus.php`, {
                 is_available: newAvailability
             }, {
                 headers: { Authorization: `Bearer ${token}` }
