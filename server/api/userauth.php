@@ -7,23 +7,16 @@ use \Firebase\JWT\JWT;
 
 $reactUrl = getenv('REACT_URL');
 
-
 header("Access-Control-Allow-Origin: $reactUrl");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods:POST ,GET ,OPTIONS");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type,Access-Control-Allow-Headers, Authorization, X-Requested-With");
-
-
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     header("HTTP/1.1 200 OK");
     exit();
 }
-
-
-
-
 
 $db = getDbConnection();
 
@@ -51,12 +44,9 @@ switch($requestMethod) {
         http_response_code(405);
         echo json_encode(array("message" => "Method not allowed"));
         break;
-            
 }
 
-
-
-function createUser($db,$data) {
+function createUser($db, $data) {
     $username = $data['username'] ?? '';
     $email = $data['email'] ?? '';
     $password = $data['password'] ?? '';
@@ -69,66 +59,55 @@ function createUser($db,$data) {
         return;
     }
 
-    
-   
-
     // Check if email already exists
-    $query = "SELECT id FROM users WHERE email = :email";
-    $stmt = $db->prepare($query);
-    $stmt->bindParam(':email', $email);
-    $stmt->execute();
+    $query = "SELECT id FROM users WHERE email = $1";
+    $result = pg_query_params($db, $query, array($email));
 
-    if ($stmt->rowCount() > 0) {
+    if (!$result) {
+        http_response_code(500);
+        echo json_encode(array("message" => "Query failed: " . pg_last_error($db)));
+        return;
+    }
+
+    if (pg_num_rows($result) > 0) {
         http_response_code(400);
         echo json_encode(array("message" => "Email already exists"));
         return;
     }
 
-     // Hash the password
-     $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+    // Hash the password
+    $hashed_password = password_hash($password, PASSWORD_BCRYPT);
 
-     // Insert the new user
-     $query = "INSERT INTO users (username, email, password, role) VALUES (:username, :email, :password, :role)";
-     $stmt = $db->prepare($query);
-     $stmt->bindParam(':username', $username);
-     $stmt->bindParam(':email', $email);
-     $stmt->bindParam(':password', $hashed_password);
-     $stmt->bindParam(':role', $role);
- 
-     if ($stmt->execute()) {
+    // Insert the new user
+    $query = "INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4)";
+    $result = pg_query_params($db, $query, array($username, $email, $hashed_password, $role));
 
-        $user_id = $db->lastInsertId();
+    if (!$result) {
+        http_response_code(500);
+        echo json_encode(array("message" => "Failed to create user: " . pg_last_error($db)));
+        return;
+    }
 
+    $user_id = pg_fetch_result(pg_query($db, "SELECT LASTVAL()"), 0, 0);
 
-        if ($role === 'driver') {
-            $driver_query = "INSERT INTO drivers (name, user_id, is_available) VALUES (:name, :user_id, TRUE)";
-            $driver_stmt = $db->prepare($driver_query);
-            $driver_stmt->bindParam(':name', $username);
-            $driver_stmt->bindParam(':user_id', $user_id);
+    if ($role === 'driver') {
+        $driver_query = "INSERT INTO drivers (name, user_id, is_available) VALUES ($1, $2, TRUE)";
+        $driver_result = pg_query_params($db, $driver_query, array($username, $user_id));
 
-            if ($driver_stmt->execute()) {
-                http_response_code(201);
-                echo json_encode(array("message" => "User and driver created successfully"));
-            } else {
-                http_response_code(500);
-                echo json_encode(array("message" => "Failed to create driver"));
-            }
+        if (!$driver_result) {
+            http_response_code(500);
+            echo json_encode(array("message" => "Failed to create driver: " . pg_last_error($db)));
         } else {
             http_response_code(201);
-            echo json_encode(array("message" => "User created successfully"));
+            echo json_encode(array("message" => "User and driver created successfully"));
         }
-
-
-     } else {
-         http_response_code(500);
-         echo json_encode(array("message" => "Failed to create user"));
-     }
- 
+    } else {
+        http_response_code(201);
+        echo json_encode(array("message" => "User created successfully"));
+    }
 }
 
-
-function loginUser($db,$data){
-    
+function loginUser($db, $data) {
     $email = $data['email'] ?? '';
     $password = $data['password'] ?? '';
 
@@ -139,49 +118,42 @@ function loginUser($db,$data){
         return;
     }
 
-       // Fetch the user by email
+    // Fetch the user by email
+    $query = "SELECT id, username, password, role FROM users WHERE email = $1";
+    $result = pg_query_params($db, $query, array($email));
 
-       $query = "SELECT id,username,  password ,role  FROM users WHERE email = :email";
+    if (!$result) {
+        http_response_code(500);
+        echo json_encode(array("message" => "Query failed: " . pg_last_error($db)));
+        return;
+    }
 
-       $stmt = $db->prepare($query);
-       $stmt->bindParam(':email', $email);
-       $stmt->execute();
-   
-       if ($stmt->rowCount() === 0) {
-           http_response_code(401);
-           echo json_encode(array("message" => "Invalid email or password"));
-           return;
-       }
+    if (pg_num_rows($result) === 0) {
+        http_response_code(401);
+        echo json_encode(array("message" => "Invalid email or password"));
+        return;
+    }
 
-       $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    $user = pg_fetch_assoc($result);
     $stored_password = $user['password'];
 
-
-   
     if (password_verify($password, $stored_password)) {
-
-        $key = $_ENV['jwt_token']; 
+        $key = getenv('jwt_token');
         $payload = array(
-            'iss' => 'your_domain.com', 
-            'iat' => time(), 
-            'exp' => time() + 3600, 
-            'id' => $user['id'] ,
+            'iss' => 'your_domain.com',
+            'iat' => time(),
+            'exp' => time() + 3600,
+            'id' => $user['id'],
             'role' => $user['role']
         );
 
-        $jwt = JWT::encode($payload, $key,'HS256');
+        $jwt = JWT::encode($payload, $key, 'HS256');
 
-       
         http_response_code(200);
         echo json_encode(array("message" => "Login successful", "token" => $jwt));
-
     } else {
         http_response_code(401);
         echo json_encode(array("message" => "Invalid email or password"));
     }
-    
-};
-
-
-
+}
 ?>

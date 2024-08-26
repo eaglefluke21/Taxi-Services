@@ -87,7 +87,7 @@ const Status = () => {
             console.log("current env", apiUrl);
 
             const token = sessionStorage.getItem('jwToken');
-            await axios.put(`${apiUrl}/driverstatus.php`, {
+            await axios.put(`${apiUrl}/api/driverstatus`, {
                 is_available: newAvailability
             }, {
                 headers: { Authorization: `Bearer ${token}` }

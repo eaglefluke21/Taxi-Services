@@ -1,7 +1,7 @@
 <?php
 include_once __DIR__ . '/index.php';
 
-require_once __DIR__ .'/../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 use \Firebase\JWT\JWT;
 use Firebase\JWT\Key;
@@ -10,41 +10,36 @@ $reactUrl = getenv('REACT_URL');
 
 header("Access-Control-Allow-Origin: $reactUrl");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods:POST ,GET ,OPTIONS");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type,Access-Control-Allow-Headers, Authorization, X-Requested-With");
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
-
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     header("HTTP/1.1 200 OK");
     exit();
 }
 
-
-
-$db = getDbConnection();
-
+$db = getDbConnection(); // Ensure this returns a valid PgSql connection resource
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 
-switch($requestMethod) {
+switch ($requestMethod) {
     case 'GET':
         error_log('Handling GET request');
         getUsers($db);
         break;
     case 'POST':
         error_log('Handling POST request');
-            createUser($db);
-            break;
+        createUser($db);
+        break;
     default:
-            http_response_code(405);
-            echo json_encode(array("message"=>"Method not allowed"));
-            break;
-            
+        http_response_code(405);
+        echo json_encode(array("message" => "Method not allowed"));
+        break;
 }
 
 function getUsers($db) {
@@ -65,25 +60,27 @@ function getUsers($db) {
         $decoded = JWT::decode($token, new Key($key, 'HS256'));
         $userId = $decoded->id;
 
-        $query = "SELECT id, name, pickup, dropoff, car, passengers, description ,status FROM userbooking WHERE user_id = :user_id";
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->execute();
+        $query = "SELECT id, name, pickup, dropoff, car, passengers, description, status FROM userbooking WHERE user_id = $1";
+        $result = pg_query_params($db, $query, array($userId));
+
+        if (!$result) {
+            http_response_code(500);
+            echo json_encode(array("message" => "Query failed: " . pg_last_error($db)));
+            return;
+        }
 
         $users = array();
 
-        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            extract($row);
-
+        while ($row = pg_fetch_assoc($result)) {
             $user_item = array(
-                "id" => $id,
-                "name" => $name,
-                "pickup" => $pickup,
-                "dropoff" => $dropoff,
-                "car" => $car,
-                "passengers" => $passengers,
-                "description" => $description,
-                "status" => $status
+                "id" => $row['id'],
+                "name" => $row['name'],
+                "pickup" => $row['pickup'],
+                "dropoff" => $row['dropoff'],
+                "car" => $row['car'],
+                "passengers" => $row['passengers'],
+                "description" => $row['description'],
+                "status" => $row['status']
             );
 
             array_push($users, $user_item);
@@ -110,7 +107,7 @@ function createUser($db) {
     }
 
     try {
-        $key = $_ENV['jwt_token'];
+        $key = getenv('jwt_token');
         $decoded = JWT::decode($token, new Key($key, 'HS256'));
         $userId = $decoded->id;
 
@@ -141,41 +138,43 @@ function createUser($db) {
             }
 
             // Check for available driver
-            $query = "SELECT id FROM drivers WHERE is_available = 1 LIMIT 1";
-            $stmt = $db->prepare($query);
-            $stmt->execute();
-            $driver = $stmt->fetch(PDO::FETCH_ASSOC);
+            $query = "SELECT id FROM drivers WHERE is_available = 'available' LIMIT 1";
+            $result = pg_query($db, $query);
+
+            if (!$result) {
+                http_response_code(500);
+                echo json_encode(array("message" => "Query failed: " . pg_last_error($db)));
+                return;
+            }
+
+            $driver = pg_fetch_assoc($result);
 
             if ($driver) {
                 $driverId = $driver['id'];
 
                 // Create a new booking with status 'pending'
-                $query = "INSERT INTO userbooking (user_id, driver_id, name, pickup, dropoff, passengers, car, description, status) VALUES (:user_id, :driver_id, :name, :pickup, :dropoff, :passengers, :car, :description, 'pending')";
-                $stmt = $db->prepare($query);
+                $query = "INSERT INTO userbooking (user_id, driver_id, name, pickup, dropoff, passengers, car, description, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'pending')";
+                $params = array($userId, $driverId, $name, $pickup, $dropoff, $passengers, $car, $description);
+                $result = pg_query_params($db, $query, $params);
 
-                // Bind parameters
-                $stmt->bindParam(":user_id", $userId);
-                $stmt->bindParam(":driver_id", $driverId);
-                $stmt->bindParam(":name", $name);
-                $stmt->bindParam(":pickup", $pickup);
-                $stmt->bindParam(":dropoff", $dropoff);
-                $stmt->bindParam(":passengers", $passengers);
-                $stmt->bindParam(":car", $car);
-                $stmt->bindParam(":description", $description);
-
-                if ($stmt->execute()) {
-                    // Update driver availability
-                    $query = "UPDATE drivers SET is_available = 0 WHERE id = :driver_id";
-                    $stmt = $db->prepare($query);
-                    $stmt->bindParam(":driver_id", $driverId);
-                    $stmt->execute();
-
-                    http_response_code(201);
-                    echo json_encode(array("message" => "Booking created and driver assigned.", "driver_id" => $driverId));
-                } else {
+                if (!$result) {
                     http_response_code(503);
                     echo json_encode(array("message" => "Unable to create booking."));
+                    return;
                 }
+
+                // Update driver availability
+                $query = "UPDATE drivers SET is_available = FALSE WHERE id = $1";
+                $result = pg_query_params($db, $query, array($driverId));
+
+                if (!$result) {
+                    http_response_code(500);
+                    echo json_encode(array("message" => "Failed to update driver availability: " . pg_last_error($db)));
+                    return;
+                }
+
+                http_response_code(201);
+                echo json_encode(array("message" => "Booking created and driver assigned.", "driver_id" => $driverId));
             } else {
                 http_response_code(404);
                 echo json_encode(array("message" => "No available drivers."));

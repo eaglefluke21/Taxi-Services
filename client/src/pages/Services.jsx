@@ -19,7 +19,7 @@ const Services = () => {
         const apiUrl = import.meta.env.VITE_API_URL;
         console.log("current env", apiUrl);
 
-        axios.get(`${apiUrl}/customerbooking`, {
+        axios.get(`${apiUrl}/api/customerbooking`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
