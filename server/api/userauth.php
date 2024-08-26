@@ -91,7 +91,7 @@ function createUser($db, $data) {
     $user_id = pg_fetch_result(pg_query($db, "SELECT LASTVAL()"), 0, 0);
 
     if ($role === 'driver') {
-        $driver_query = "INSERT INTO drivers (name, user_id, is_available) VALUES ($1, $2, TRUE)";
+        $driver_query = "INSERT INTO drivers (name, user_id, is_available) VALUES ($1, $2, 'available')";
         $driver_result = pg_query_params($db, $driver_query, array($username, $user_id));
 
         if (!$driver_result) {
