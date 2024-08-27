@@ -14,18 +14,21 @@ const Services = () => {
 
     const token = sessionStorage.getItem('jwToken');
 
+    const apiUrl = import.meta.env.VITE_API_URL;
+    console.log("current env", apiUrl);
 
     const fetchuser = () => {
-        const apiUrl = import.meta.env.VITE_API_URL;
-        console.log("current env", apiUrl);
+       
 
-        axios.get(`${apiUrl}/api/customerbooking`, {
+        axios.get(`${apiUrl}/api/customerbooking.php`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }
         })
             .then(response => {
+                
                 setUsers(response.data);
+                
             })
             .catch(error => {
                 console.error('There was an error fetching the users!', error);

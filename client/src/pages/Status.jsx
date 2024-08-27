@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 const Status = () => {
     const [driverInfo, setDriverInfo] = useState(null);
 
-    const [isAvailable, setIsAvailable] = useState(true);
+    const [isAvailable, setIsAvailable] = useState('available');
 
     const [bookings, setBookings] = useState([]);
 
@@ -18,14 +18,20 @@ const Status = () => {
 
     const token = sessionStorage.getItem('jwToken');
 
+    const apiUrl = import.meta.env.VITE_API_URL;
+    console.log("current env", apiUrl);
+
     useEffect(() => {
         const fetchDriverInfo = async () => {
             
             try {        
-                const response = await axios.get('https://taxi-services-backend.vercel.app/api/driverstatus', {
+
+                const response = await  axios.get(`${apiUrl}/api/driverstatus.php`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                console.log("response data ", response.data);
+                console.log("drivers data ", response.data);
+                console.log("is available",response.data.is_available);
+                console.log("booking",response.data.bookings);
                 setDriverInfo(response.data);
                 setIsAvailable(response.data.is_available);
                 setBookings(response.data.bookings || []);
@@ -43,10 +49,10 @@ const Status = () => {
         const fetchbookingstatus = async () => {
             try {
     
-                const response = await axios.get('http://localhost:8000/api/bookingstatus.php', {
+                const response = await axios.get(`${apiUrl}/api/bookingstatus.php`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
-                console.log(response.data);
+                 console.log("customer booking data" ,response);
                 setBooking(response.data);
                 setStatus(response.data.status);
             } catch (error) {
@@ -59,7 +65,7 @@ const Status = () => {
 
     const handleStatusChange = async (newStatus) => {
         try {
-            const response = await axios.put('http://localhost:8000/api/bookingstatus.php', {
+            const response = await axios.put(`${apiUrl}/api/bookingstatus.php`, {
                 status: newStatus,
             }, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -80,14 +86,13 @@ const Status = () => {
 
     const handleAvailabilityChange = async () => {
 
-        const newAvailability = !isAvailable;
+        const newAvailability = isAvailable === 'available' ? 'unavailable' : 'available';
 
         try {
-            const apiUrl = import.meta.env.VITE_API_URL;
-            console.log("current env", apiUrl);
+           
 
             const token = sessionStorage.getItem('jwToken');
-            await axios.put(`${apiUrl}/api/driverstatus`, {
+            await axios.put(`${apiUrl}/api/driverstatus.php`, {
                 is_available: newAvailability
             }, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -112,9 +117,9 @@ const Status = () => {
                     
                     <div className="flex flex-col items-center justify-center " >
                         <p className="font-quick">Name: <span className="font-semibold">{driverInfo.name}</span></p>
-                        <p>Status: {isAvailable ? 'Available' : 'Not Available'}</p>
+                        <p>Status: {isAvailable=== 'available' ? 'Available' : 'Not Available'}</p>
                         <Button onClick={handleAvailabilityChange} className="bg-black w-64 mt-2">
-                            {isAvailable ? 'Mark as Not Available' : 'Mark as Available'}
+                            {isAvailable  === 'available' ? 'Mark as Not Available' : 'Mark as Available'}
                         </Button>
                     </div>
                 ) : (

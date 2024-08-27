@@ -10,28 +10,19 @@ $reactUrl = getenv('REACT_URL');
 
 header("Access-Control-Allow-Origin: $reactUrl");
 
-
-
-
 header("Content-Type: application/json; charset=UTF-8");
 header("Access-Control-Allow-Methods:POST ,GET , PUT ,OPTIONS");
 header("Access-Control-Max-Age: 3600");
 header("Access-Control-Allow-Headers: Content-Type,Access-Control-Allow-Headers, Authorization, X-Requested-With");
-
-
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     header("HTTP/1.1 200 OK");
     exit();
 }
 
-
-
 $db = getDbConnection();
 
-
 $requestMethod = $_SERVER["REQUEST_METHOD"];
-
 
 switch($requestMethod) {
     case 'GET':
@@ -60,16 +51,15 @@ function getInfoDriver($db) {
     }
 
     try {
-        $key = $_ENV['jwt_token'];
+        $key = getenv('jwt_token');
         $decoded = JWT::decode($token, new Key($key, 'HS256'));
         $driverId = $decoded->id;
 
-        $query = "SELECT id, name, is_available FROM drivers WHERE user_id = ?";
-        $stmt = $db->prepare($query);
-        $stmt->execute([$driverId]);
+        $query = "SELECT id, name, is_available FROM drivers WHERE user_id = $1";
+        $result = pg_query_params($db, $query, [$driverId]);
 
-        if ($stmt->rowCount() > 0) {
-            $driver = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (pg_num_rows($result) > 0) {
+            $driver = pg_fetch_assoc($result);
             echo json_encode($driver);
         } else {
             http_response_code(404);
@@ -93,31 +83,25 @@ function changeAvailability($db) {
     }
 
     try {
-        $key = $_ENV['jwt_token'];
+        $key = getenv('jwt_token');
         $decoded = JWT::decode($token, new Key($key, 'HS256'));
         $driverId = $decoded->id;
 
         error_log($driverId);
 
         $data = json_decode(file_get_contents("php://input"), true);
-        $isAvailable = filter_var($data['is_available'], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
+        $isAvailable = $data['is_available'] ?? '';
 
-        if ($isAvailable === null) {
+        if (!in_array($isAvailable, ['yes', 'no'])) {
             http_response_code(400);
             echo json_encode(array("message" => "Invalid input for is_available"));
             return;
         }
-            
-        error_log('before conversion'. $isAvailable);
 
-        // Convert boolean to integer for SQL
-        $isAvailable = $isAvailable ? 1 : 0;
+        $query = "UPDATE drivers SET is_available = $1 WHERE user_id = $2";
+        $result = pg_query_params($db, $query, [$isAvailable, $driverId]);
 
-        error_log('after conversion'. $isAvailable);
-
-        $query = "UPDATE drivers SET is_available = ? WHERE user_id = ?";
-        $stmt = $db->prepare($query);
-        if ($stmt->execute([$isAvailable, $driverId])) {
+        if ($result) {
             echo json_encode(array("message" => "Availability updated successfully"));
         } else {
             http_response_code(500);
@@ -129,3 +113,6 @@ function changeAvailability($db) {
         echo json_encode(array("message" => "Invalid token", "error" => $e->getMessage()));
     }
 }
+
+
+?>

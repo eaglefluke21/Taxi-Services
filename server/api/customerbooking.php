@@ -56,7 +56,7 @@ function getUsers($db) {
     }
 
     try {
-        $key = $_ENV['jwt_token'];
+        $key = getenv('jwt_token');
         $decoded = JWT::decode($token, new Key($key, 'HS256'));
         $userId = $decoded->id;
 
@@ -164,7 +164,7 @@ function createUser($db) {
                 }
 
                 // Update driver availability
-                $query = "UPDATE drivers SET is_available = FALSE WHERE id = $1";
+                $query = "UPDATE drivers SET is_available = 'unavailable' WHERE id = $1";
                 $result = pg_query_params($db, $query, array($driverId));
 
                 if (!$result) {

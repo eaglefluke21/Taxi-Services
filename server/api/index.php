@@ -16,7 +16,7 @@ function getDbConnection() {
     // createEnumType($dbconn);
     //createDriversTable($dbconn);
     //createUserBookingTable($dbconn);
-
+    
     return $dbconn;
 }
 

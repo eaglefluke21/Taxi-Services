@@ -8,37 +8,28 @@ use Firebase\JWT\Key;
 
 $reactUrl = getenv('REACT_URL');
 
-echo $reactUrl;
 
 header("Access-Control-Allow-Origin: $reactUrl");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods:POST ,GET , PUT ,OPTIONS");
+header("Access-Control-Allow-Methods: POST, GET, PUT, OPTIONS");
 header("Access-Control-Max-Age: 3600");
-header("Access-Control-Allow-Headers: Content-Type,Access-Control-Allow-Headers, Authorization, X-Requested-With");
-
-
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     header("HTTP/1.1 200 OK");
     exit();
 }
 
-
-
-
-
 $db = getDbConnection();
-
 
 $requestMethod = $_SERVER["REQUEST_METHOD"];
 
-
 switch($requestMethod) {
     case 'GET':
-        checkstatus($db);
+        checkStatus($db);
         break;
     case 'PUT':
-        updatestatus($db);
+        updateStatus($db);
         break;
     default:
         http_response_code(405);
@@ -57,16 +48,14 @@ function checkStatus($db) {
     }
 
     try {
-        $key = $_ENV['jwt_token'];
+        $key = getenv('jwt_token');
         $decoded = JWT::decode($token, new Key($key, 'HS256'));
-        $decodeddriverId = $decoded->id;
+        $decodedDriverId = $decoded->id;
 
         // Verify driver ID
-        $query = "SELECT * FROM drivers WHERE user_id = :user_id";
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(":user_id", $decodeddriverId);
-        $stmt->execute();
-        $driver = $stmt->fetch(PDO::FETCH_ASSOC);
+        $query = "SELECT * FROM drivers WHERE user_id = $1";
+        $result = pg_query_params($db, $query, [$decodedDriverId]);
+        $driver = pg_fetch_assoc($result);
 
         if (!$driver) {
             http_response_code(404);
@@ -75,11 +64,9 @@ function checkStatus($db) {
         }
 
         // Fetch booking status for the driver
-        $query = "SELECT * FROM userbooking WHERE driver_id = :driver_id AND status = 'pending'";
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(":driver_id", $driver['id']);
-        $stmt->execute();
-        $booking = $stmt->fetch(PDO::FETCH_ASSOC);
+        $query = "SELECT * FROM userbooking WHERE driver_id = $1 AND status = 'pending'";
+        $result = pg_query_params($db, $query, [$driver['id']]);
+        $booking = pg_fetch_assoc($result);
 
         if ($booking) {
             http_response_code(200);
@@ -93,6 +80,7 @@ function checkStatus($db) {
         echo json_encode(array("message" => "Invalid token", "error" => $e->getMessage()));
     }
 }
+
 function updateStatus($db) {
     $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
     $token = str_replace('Bearer ', '', $authHeader);
@@ -104,9 +92,9 @@ function updateStatus($db) {
     }
 
     try {
-        $key = $_ENV['jwt_token'];
+        $key = getenv('jwt_token');
         $decoded = JWT::decode($token, new Key($key, 'HS256'));
-        $decodeddriverId = $decoded->id;
+        $decodedDriverId = $decoded->id;
 
         $data = json_decode(file_get_contents("php://input"));
 
@@ -117,11 +105,9 @@ function updateStatus($db) {
         }
 
         // Verify driver ID
-        $query = "SELECT * FROM drivers WHERE user_id = :user_id";
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(":user_id", $decodeddriverId);
-        $stmt->execute();
-        $driver = $stmt->fetch(PDO::FETCH_ASSOC);
+        $query = "SELECT * FROM drivers WHERE user_id = $1";
+        $result = pg_query_params($db, $query, [$decodedDriverId]);
+        $driver = pg_fetch_assoc($result);
 
         if (!$driver) {
             http_response_code(404);
@@ -130,18 +116,14 @@ function updateStatus($db) {
         }
 
         // Update booking status
-        $query = "UPDATE userbooking SET status = :status WHERE driver_id = :driver_id AND status = 'pending'";
-        $stmt = $db->prepare($query);
-        $stmt->bindParam(":status", $data->status);
-        $stmt->bindParam(":driver_id", $driver['id']);
-        if ($stmt->execute()) {
+        $query = "UPDATE userbooking SET status = $1 WHERE driver_id = $2 AND status = 'pending'";
+        $result = pg_query_params($db, $query, [$data->status, $driver['id']]);
+
+        if ($result) {
             // Fetch updated booking
-            $query = "SELECT * FROM userbooking WHERE driver_id = :driver_id AND status = :status";
-            $stmt = $db->prepare($query);
-            $stmt->bindParam(":driver_id", $driver['id']);
-            $stmt->bindParam(":status", $data->status);
-            $stmt->execute();
-            $updatedBooking = $stmt->fetch(PDO::FETCH_ASSOC);
+            $query = "SELECT * FROM userbooking WHERE driver_id = $1 AND status = $2";
+            $result = pg_query_params($db, $query, [$driver['id'], $data->status]);
+            $updatedBooking = pg_fetch_assoc($result);
 
             http_response_code(200);
             echo json_encode($updatedBooking);
@@ -154,3 +136,4 @@ function updateStatus($db) {
         echo json_encode(array("message" => "Invalid token", "error" => $e->getMessage()));
     }
 }
+?>
