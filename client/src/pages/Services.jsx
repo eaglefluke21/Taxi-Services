@@ -20,7 +20,7 @@ const Services = () => {
     const fetchuser = () => {
        
 
-        axios.get(`${apiUrl}/api/customerbooking.php`, {
+        axios.get(`${apiUrl}/api/customerbooking`, {
             headers: {
                 Authorization: `Bearer ${token}`
             }

@@ -44,7 +44,7 @@ const DetailsBooking = () => {
         const apiUrl = import.meta.env.VITE_API_URL;
         console.log("current env", apiUrl);
         
-        axios.post(`${apiUrl}/api/customerbooking.php`, formData, {
+        axios.post(`${apiUrl}/api/customerbooking`, formData, {
         headers: {
             Authorization: `Bearer ${token}`
         }

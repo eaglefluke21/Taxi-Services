@@ -26,7 +26,7 @@ const Status = () => {
             
             try {        
 
-                const response = await  axios.get(`${apiUrl}/api/driverstatus.php`, {
+                const response = await  axios.get(`${apiUrl}/api/driverstatus`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 console.log("drivers data ", response.data);
@@ -49,7 +49,7 @@ const Status = () => {
         const fetchbookingstatus = async () => {
             try {
     
-                const response = await axios.get(`${apiUrl}/api/bookingstatus.php`, {
+                const response = await axios.get(`${apiUrl}/api/bookingstatus`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                  console.log("customer booking data" ,response);
@@ -65,7 +65,7 @@ const Status = () => {
 
     const handleStatusChange = async (newStatus) => {
         try {
-            const response = await axios.put(`${apiUrl}/api/bookingstatus.php`, {
+            const response = await axios.put(`${apiUrl}/api/bookingstatus`, {
                 status: newStatus,
             }, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -92,7 +92,7 @@ const Status = () => {
            
 
             const token = sessionStorage.getItem('jwToken');
-            await axios.put(`${apiUrl}/api/driverstatus.php`, {
+            await axios.put(`${apiUrl}/api/driverstatus`, {
                 is_available: newAvailability
             }, {
                 headers: { Authorization: `Bearer ${token}` }

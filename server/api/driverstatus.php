@@ -92,7 +92,9 @@ function changeAvailability($db) {
         $data = json_decode(file_get_contents("php://input"), true);
         $isAvailable = $data['is_available'] ?? '';
 
-        if (!in_array($isAvailable, ['yes', 'no'])) {
+        error_log("is avail value :  ". $isAvailable);
+
+        if (!in_array($isAvailable, ['available', 'unavailable'])) {
             http_response_code(400);
             echo json_encode(array("message" => "Invalid input for is_available"));
             return;

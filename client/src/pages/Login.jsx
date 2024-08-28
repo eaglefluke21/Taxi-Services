@@ -44,7 +44,7 @@ function Login() {
             const apiUrl = import.meta.env.VITE_API_URL;
             console.log("current env", apiUrl);
 
-            const response = await axios.post(`${apiUrl}/api/userauth.php`, {
+            const response = await axios.post(`${apiUrl}/api/userauth`, {
                 action: 'login',
                 ...Formdata
             });
