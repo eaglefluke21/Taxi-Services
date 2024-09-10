@@ -6,7 +6,7 @@ const Chat = () => {
     return (
 
         <>
-        <p> Message with</p>
+        
         </>
     )
 
