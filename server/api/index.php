@@ -1,4 +1,39 @@
 <?php
+
+$requestUri = $_SERVER['REQUEST_URI'];
+
+$uri = rtrim(parse_url($requestUri, PHP_URL_PATH), '/');
+
+if (substr($uri, -4) === '.php') {
+    $uri = substr($uri, 0, -4);
+}
+
+switch ($uri) {
+    case '/api/userauth':
+        include_once __DIR__ . '/userauth.php';
+        break;
+        
+    case '/api/driverstatus':
+        include_once __DIR__ . '/driverstatus.php';
+        break;
+        
+    case '/api/customerbooking':
+        include_once __DIR__ . '/customerbooking.php';
+        break;
+        
+    case '/api/bookingstatus':
+        include_once __DIR__ . '/bookingstatus.php';
+        break;
+        
+    default:
+        http_response_code(404);
+        echo json_encode(['message' => 'Route not found']);
+        break;
+    }
+
+
+
+
 function getDbConnection() {
     $connection_string = getenv('POSTGRES_URL');
 

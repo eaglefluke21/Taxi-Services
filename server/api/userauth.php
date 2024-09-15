@@ -25,7 +25,7 @@ $requestMethod = $_SERVER["REQUEST_METHOD"];
 switch($requestMethod) {
     case 'GET':
         http_response_code(405);
-        echo json_encode(array("message" => "Requested Page"));
+        echo json_encode(array("message" => "Requested Page : User Auth"));
         break;
     case 'POST':
         $data = json_decode(file_get_contents("php://input"), true);
